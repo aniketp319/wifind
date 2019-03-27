@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void checkstrength(View view){
-        //Intent intent = new Intent(MainActivity.this,wifipage.class);
+        
         new CountDownTimer(30000, 1000) {
             TextView tv = (TextView)findViewById(R.id.strength_text);
             public void onTick(long millisUntilFinished) {
