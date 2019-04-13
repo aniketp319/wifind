@@ -1,8 +1,10 @@
 package com.example.wifind;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.os.Environment;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,30 +26,32 @@ import java.io.OutputStreamWriter;
 import java.util.Calendar;
 import java.util.Date;
 
+import static android.os.Environment.*;
+
 public class MainActivity extends AppCompatActivity {
 
 
 
-    public void checkstrength(View view){
-        
-        new CountDownTimer(30000, 1000) {
-            TextView tv = (TextView)findViewById(R.id.strength_text);
-            public void onTick(long millisUntilFinished) {
-                // txt.setText(wifi_Info());
-                tv.setText(check_strengthfunc());
-            }
-
-            public void onFinish() {
-                tv.setText("done!");
-            }
-        }.start();
-    }
+//    public void checkstrength(View view){
+//
+//        new CountDownTimer(30000, 1000) {
+//            TextView tv = (TextView)findViewById(R.id.strength_text);
+//            public void onTick(long millisUntilFinished) {
+//                // txt.setText(wifi_Info());
+//                tv.setText(check_strengthfunc());
+//            }
+//
+//            public void onFinish() {
+//                tv.setText("done!");
+//            }
+//        }.start();
+//    }
 
     public String check_strengthfunc(){
         WifiManager wifiManager = (WifiManager) this.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         int rssi = wifiManager.getConnectionInfo().getRssi();
-        int level = WifiManager.calculateSignalLevel(rssi, 5);
-        System.out.println("Level is " + level + " out of 5");
+        //int level = WifiManager.calculateSignalLevel(rssi, 5);
+        //System.out.println("Level is " + level + " out of 5");
         String lol = "Wifi level is "+rssi;
         return lol;
     }
@@ -64,14 +68,18 @@ public class MainActivity extends AppCompatActivity {
             FileInputStream inputStream=null;
             byte[] b;
             TextView txt = (TextView) findViewById(R.id.fileview);
+            TextView tv = (TextView) findViewById(R.id.strength_text);
             public void onTick(long millisUntilFinished) {
                 currentTime = Calendar.getInstance().getTime();
+                tv.setText(check_strengthfunc());
                 file_string += currentTime+"\n"+ check_strengthfunc()+"\n\n"; //calls wifi
                 Toast.makeText(MainActivity.this,"READING STRENGTH",Toast.LENGTH_SHORT).show();
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             public void onFinish() {
                 try{
+                    tv.setText("Completed");
                     outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
                     outputStream.write(file_string.getBytes());
                     if (outputStream!=null){ outputStream.close();}
@@ -87,14 +95,49 @@ public class MainActivity extends AppCompatActivity {
                     {
                         sb.append(text).append('\n');
                     }
+                    String hehe = sb.toString();
                     txt.setText(sb.toString());
 
                     if (inputStream!=null){inputStream.close();}
+
                 //Toast.makeText(MainActivity.this,"SAVED",Toast.LENGTH_SHORT).show();
+                    if(isExternalStorageAvailable()){
+                        File file = new File(Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_DOCUMENTS), "wifinddata");
+
+
+
+                        try {
+                            file.createNewFile();
+                            //second argument of FileOutputStream constructor indicates whether to append or create new file if one exists
+                            outputStream = new FileOutputStream(file, true);
+
+                            outputStream.write(hehe.getBytes());
+                            outputStream.flush();
+                            outputStream.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        Toast.makeText(MainActivity.this,"External stored",Toast.LENGTH_SHORT).show();
+
+                    }
+                    else{
+                        Log.i("err","External Not available");
+                        Toast.makeText(MainActivity.this,"Error external",Toast.LENGTH_SHORT).show();
+                    }
                 }
                 catch (IOException e){e.printStackTrace();}
             }
         }.start();
+    }
+
+    public boolean isExternalStorageAvailable(){
+        String state = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            return true;
+        }
+        return false;
     }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
