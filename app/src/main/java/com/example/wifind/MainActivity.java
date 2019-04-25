@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this,"READING STRENGTH",Toast.LENGTH_SHORT).show();
             }
 
-            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             public void onFinish() {
                 try{
                     tv.setText("Completed");
@@ -101,9 +100,8 @@ public class MainActivity extends AppCompatActivity {
                     if (inputStream!=null){inputStream.close();}
 
                 //Toast.makeText(MainActivity.this,"SAVED",Toast.LENGTH_SHORT).show();
-                    if(isExternalStorageAvailable()){
-                        File file = new File(Environment.getExternalStoragePublicDirectory(
-                                Environment.DIRECTORY_DOCUMENTS), "wifinddata");
+
+                    File file = new File(MainActivity.this.getExternalFilesDir(null), "wifinddata.txt");
 
 
 
@@ -121,11 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
                         Toast.makeText(MainActivity.this,"External stored",Toast.LENGTH_SHORT).show();
 
-                    }
-                    else{
-                        Log.i("err","External Not available");
-                        Toast.makeText(MainActivity.this,"Error external",Toast.LENGTH_SHORT).show();
-                    }
+
+
                 }
                 catch (IOException e){e.printStackTrace();}
             }
